@@ -23,7 +23,7 @@ namespace MaterialMES2ERP
         public string directPath;
         private void MainForm_Load(object sender, EventArgs e)
         {
-            dtgv.DataSource = GetMESdata.GetWHBs();
+            dtgv.DataSource = GetMESdata.GetWHFs();
             dtgvSetting();
         }
         public void dtgvSetting()
@@ -48,18 +48,20 @@ namespace MaterialMES2ERP
                     // SaveFileDialog title
                     dlgSave.Title = "Save File";
                     // Available file extensions
-                    dlgSave.Filter = "All files (*.*) | *.*";
+                    dlgSave.Filter = "Execl files (*.xlsx)|*.xlsx|Execl files (*.xls)|*.xls";
                     if (dlgSave.ShowDialog() == DialogResult.OK && dlgSave.FileName.Length > 0)
                     {
                         string filePath = dlgSave.FileName;
                         directPath = Path.GetFullPath(filePath);
                         txtTest.Text = directPath;
                         List<SaveWHB> l1 = GetMESdata.GetWHBs();
-                        DataTable dt2 = GetMESdata.getWarehouse_flow_data();
+                        List<SaveWHF> l2 = GetMESdata.GetWHFs();
+                        List<SaveBillList> l3 = GetMESdata.GetBLs();
                         var sheets = new Dictionary<string, object>
                         {
-                            ["SD001"] = l1,
-                            ["SD002"] = dt2
+                            ["WH001"] = l1,
+                            ["WH002"] = l2,
+                            ["WH003"] = l3
                         };
                         MiniExcel.SaveAs(directPath, sheets, true, "null", ExcelType.XLSX, null, true);
                         DialogResult dialogResult = MessageBox.Show("The excel file was saved. Would you like to access the file?", "Alert", MessageBoxButtons.OKCancel);

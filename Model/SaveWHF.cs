@@ -1,13 +1,8 @@
 ﻿using MiniExcelLibs.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MaterialMES2ERP
 {
-    class SaveWHB
+    class SaveWHF
     {
         [ExcelColumn(Name = "UUID", Width = 16)]
         public string uuid { get; set; }
@@ -17,6 +12,12 @@ namespace MaterialMES2ERP
 
         [ExcelColumn(Name = "Số lượng", Width = 8)]
         public double book_quantity { get; set; }
+
+        [ExcelColumn(Name = "Số lượng xuất-nhập", Width = 14)]
+        public double in_out_quantity { get; set; }
+
+        [ExcelColumn(Name = "Số lượng hiện tại", Width = 14)]
+        public double this_quantity { get; set; }
 
         [ExcelColumn(Name = "Ngày tạo", Width = 20)]
         public string create_day { get; set; }

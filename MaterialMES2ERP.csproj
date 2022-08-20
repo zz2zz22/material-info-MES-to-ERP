@@ -122,7 +122,9 @@
     <Compile Include="Controller\sqlSOFTCon.cs" />
     <Compile Include="Model\GetMESdata.cs" />
     <Compile Include="Model\GetSOFTdata.cs" />
+    <Compile Include="Model\SaveBillList.cs" />
     <Compile Include="Model\SaveWHB.cs" />
+    <Compile Include="Model\SaveWHF.cs" />
     <Compile Include="View\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
