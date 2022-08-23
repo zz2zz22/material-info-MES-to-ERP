@@ -25,6 +25,7 @@ namespace MaterialMES2ERP
         {
             dtgv.DataSource = GetMESdata.GetWHFs();
             dtgvSetting();
+            txtTest.Text = tempPath;
         }
         public void dtgvSetting()
         {
@@ -34,11 +35,12 @@ namespace MaterialMES2ERP
             dtgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             //dtgv.Columns["uuid"].Visible = false;
         }
-
+        
         private void btExport_Click(object sender, EventArgs e)
         {
             saveFile();
         }
+        public string tempPath = Path.Combine(Path.GetFullPath(@"..\..\"), "Resources") + @"\Temp.xlsx";
         public void saveFile()
         {
             using (SaveFileDialog dlgSave = new SaveFileDialog())
@@ -63,7 +65,13 @@ namespace MaterialMES2ERP
                             ["WH002"] = l2,
                             ["WH003"] = l3
                         };
-                        MiniExcel.SaveAs(directPath, sheets, true, "null", ExcelType.XLSX, null, true);
+                        var value = new
+                        {
+                            l1 = l1,
+                            l2 = l2
+                        };
+                        MiniExcel.SaveAsByTemplate(directPath, tempPath, value);
+                        //MiniExcel.SaveAs(directPath, sheets, true, "null", ExcelType.XLSX, null, true);
                         DialogResult dialogResult = MessageBox.Show("The excel file was saved. Would you like to access the file?", "Alert", MessageBoxButtons.OKCancel);
                         if (dialogResult == DialogResult.OK)
                         {

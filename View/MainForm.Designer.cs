@@ -29,7 +29,6 @@ namespace MaterialMES2ERP
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.btExport = new XanderUI.XUIButton();
             this.dtgv = new System.Windows.Forms.DataGridView();
             this.txtTest = new System.Windows.Forms.TextBox();
@@ -39,12 +38,13 @@ namespace MaterialMES2ERP
             // btExport
             // 
             this.btExport.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.btExport.ButtonImage = ((System.Drawing.Image)(resources.GetObject("btExport.ButtonImage")));
+            this.btExport.ButtonImage = global::MaterialMES2ERP.Properties.Resources.excel;
             this.btExport.ButtonStyle = XanderUI.XUIButton.Style.MaterialRounded;
             this.btExport.ButtonText = "Export Excel";
             this.btExport.ClickBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(195)))), ((int)(((byte)(195)))), ((int)(((byte)(195)))));
             this.btExport.ClickTextColor = System.Drawing.Color.DodgerBlue;
             this.btExport.CornerRadius = 5;
+            this.btExport.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btExport.Horizontal_Alignment = System.Drawing.StringAlignment.Center;
             this.btExport.HoverBackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(225)))), ((int)(((byte)(225)))));
             this.btExport.HoverTextColor = System.Drawing.Color.DodgerBlue;
