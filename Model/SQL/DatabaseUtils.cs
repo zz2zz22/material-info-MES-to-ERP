@@ -14,9 +14,9 @@ namespace MaterialMES2ERP
         #region MES database cons
         public static MySqlConnection GetMes_Base_DataDBC()
         {
-            string host = "localhost"; // 172.16.0.22 - test(localhost - pass hay dung)
+            string host = "172.16.0.22"; // 172.16.0.22 - test(localhost - pass hay dung)
             string user = "root";
-            string password = "leanhvupro1"; // cloud-123456
+            string password = "cloud-123456"; // cloud-123456
             string database = "mes_base_data";
 
             return DatabaseSQLServerUtils.GetMesDBConnection(host, user, password, database);
@@ -24,9 +24,9 @@ namespace MaterialMES2ERP
 
         public static MySqlConnection GetMes_Planning_ExcutionDBC()
         {
-            string host = "localhost"; // 172.16.0.22
+            string host = "172.16.0.22"; // 172.16.0.22
             string user = "root";
-            string password = "leanhvupro1";// cloud-123456
+            string password = "cloud-123456";// cloud-123456
             string database = "mes_planning_excution";
 
             return DatabaseSQLServerUtils.GetMesDBConnection(host, user, password, database);

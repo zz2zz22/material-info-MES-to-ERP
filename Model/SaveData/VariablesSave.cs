@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace MaterialMES2ERP
 {
@@ -30,8 +31,24 @@ namespace MaterialMES2ERP
         public static String JobOrderUUID { get; set; }
         public static String OrderNo { get; set; }
         public static String ProdNo { get; set; }
-        public static float PlanQty { get; set; }
-        public static float FinishQty { get; set; }
+        public static double PlanQty { get; set; }
+        public static double FinishQty { get; set; }
+        public static DataTable matTempDatatable { get; set; }
+
+        public static void GenerateMatTempDatatable()
+        {
+            matTempDatatable = new DataTable();
+            matTempDatatable.Columns.Add("matNo");
+            matTempDatatable.Columns.Add("matName");
+            matTempDatatable.Columns.Add("totalDosage");
+            matTempDatatable.Columns.Add("scaleDosage");
+        }
+
+        public static void ResetMatTempDatatable()
+        {
+            matTempDatatable.Clear();
+            matTempDatatable.AcceptChanges();
+        }
 
         public static void ResetWindowType()
         {

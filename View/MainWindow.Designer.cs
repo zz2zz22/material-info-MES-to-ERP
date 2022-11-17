@@ -210,10 +210,14 @@ namespace MaterialMES2ERP
             this.dtgvWorkOrderMaterials.AllowUserToAddRows = false;
             this.dtgvWorkOrderMaterials.AllowUserToDeleteRows = false;
             this.dtgvWorkOrderMaterials.AllowUserToOrderColumns = true;
+            this.dtgvWorkOrderMaterials.AllowUserToResizeRows = false;
+            this.dtgvWorkOrderMaterials.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dtgvWorkOrderMaterials.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dtgvWorkOrderMaterials.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.dtgvWorkOrderMaterials.Location = new System.Drawing.Point(0, 191);
             this.dtgvWorkOrderMaterials.Name = "dtgvWorkOrderMaterials";
+            this.dtgvWorkOrderMaterials.ReadOnly = true;
+            this.dtgvWorkOrderMaterials.RowHeadersVisible = false;
             this.dtgvWorkOrderMaterials.RowHeadersWidth = 51;
             this.dtgvWorkOrderMaterials.RowTemplate.Height = 24;
             this.dtgvWorkOrderMaterials.Size = new System.Drawing.Size(638, 152);
@@ -320,9 +324,9 @@ namespace MaterialMES2ERP
             this.lbDTGVOngoingWorkOrder.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbDTGVOngoingWorkOrder.Location = new System.Drawing.Point(7, 20);
             this.lbDTGVOngoingWorkOrder.Name = "lbDTGVOngoingWorkOrder";
-            this.lbDTGVOngoingWorkOrder.Size = new System.Drawing.Size(570, 20);
+            this.lbDTGVOngoingWorkOrder.Size = new System.Drawing.Size(430, 20);
             this.lbDTGVOngoingWorkOrder.TabIndex = 3;
-            this.lbDTGVOngoingWorkOrder.Text = "DANH SÁCH ĐƠN ĐÃ NHẬP MES NHƯNG CHƯA ĐỦ SỐ LƯỢNG:";
+            this.lbDTGVOngoingWorkOrder.Text = "DANH SÁCH ĐƠN CHƯA ĐỦ KHỐI LƯỢNG LIỆU:";
             // 
             // btnSelectOrderFromMES
             // 
