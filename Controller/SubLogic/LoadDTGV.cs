@@ -23,32 +23,41 @@ namespace MaterialMES2ERP
         //
         public static void OngoingOrdersDTGV_HeaderChange(DataGridView dataGrid, Label lbData, string keyWord)
         {
-            DataTable dt = new DataTable();
-            LoadingDialog loadingDialog = new LoadingDialog();
+            sqlMesPlanningExcutionCon sqlMesPlanning = new sqlMesPlanningExcutionCon();
+            dataGrid.DataSource = null;
+            DataTable dts = new DataTable();
+            dts.Columns.Add("work_order_uuid", typeof(String));
+            dts.Columns.Add("job_order_uuid", typeof(String));
+            dts.Columns.Add("job_no", typeof(String));
             
-            Thread backgroundThreadLoadOngoingOrders = new Thread(
-                    new ThreadStart(() =>
-                    {
-                        dt = OngoingOrders(keyWord);
-                        loadingDialog.BeginInvoke(new Action(() => loadingDialog.Close()));
-                    }));
-            backgroundThreadLoadOngoingOrders.Start();
-            loadingDialog.ShowDialog();
-
+            dts.Columns.Add("erp_order_no", typeof(String));
+            dts.Columns.Add("product_no", typeof(String));
+            dts.Columns.Add("order_qty", typeof(String));
+            dts.Columns.Add("newest_update_date", typeof(String));
+            DataTable dt =  OngoingOrders(keyWord);
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                DataRow dr = dts.NewRow();
+                dr["work_order_uuid"] = dt.Rows[i]["work_order_uuid"].ToString();
+                dr["job_order_uuid"] = dt.Rows[i]["job_order_uuid"].ToString();
+                dr["job_no"] = sqlMesPlanning.sqlExecuteScalarString("select job_no from job_order where uuid = '" + dt.Rows[i]["job_order_uuid"].ToString() + "' and work_order_uuid = '" + dt.Rows[i]["work_order_uuid"].ToString() + "'");
+                dr["erp_order_no"] = sqlMesPlanning.sqlExecuteScalarString("select erp_order_no from work_order where order_uuid = '" + dt.Rows[i]["work_order_uuid"].ToString() + "'");
+                dr["product_no"] = sqlMesPlanning.sqlExecuteScalarString("select product_no from job_order where uuid = '" + dt.Rows[i]["job_order_uuid"].ToString() + "' and work_order_uuid = '" + dt.Rows[i]["work_order_uuid"].ToString() + "'");
+                dr["order_qty"] = sqlMesPlanning.sqlExecuteScalarString("select job_quantity from job_order where uuid = '" + dt.Rows[i]["job_order_uuid"].ToString() + "' and work_order_uuid = '" + dt.Rows[i]["work_order_uuid"].ToString() + "'");
+                dr["newest_update_date"] = sqlMesPlanning.sqlExecuteScalarString("select create_date from job_order where uuid = '" + dt.Rows[i]["job_order_uuid"].ToString() + "' and work_order_uuid = '" + dt.Rows[i]["work_order_uuid"].ToString() + "'");
+                dts.Rows.Add(dr);
+            }
             if (dt.Rows.Count > 0)
             {
                 lbData.Visible = false;
-                dataGrid.DataSource = dt;
-                dataGrid.Columns["job_order_uuid"].Visible = false;
+                dataGrid.DataSource = dts;
                 dataGrid.Columns["work_order_uuid"].Visible = false;
+                dataGrid.Columns["job_order_uuid"].Visible = false;
                 dataGrid.Columns["job_no"].HeaderText = "Đơn làm việc";
                 dataGrid.Columns["erp_order_no"].HeaderText = "Mã sản xuất";
                 dataGrid.Columns["product_no"].HeaderText = "Mã sản phẩm";
-                dataGrid.Columns["dispatch_qty"].HeaderText = "Số lượng của đơn";
-                dataGrid.Columns["finish_qty"].HeaderText = "Số lượng đã làm";
-                dataGrid.Columns["update_employee"].HeaderText = "Nhân viên";
+                dataGrid.Columns["order_qty"].HeaderText = "Số lượng của đơn";
                 dataGrid.Columns["newest_update_date"].HeaderText = "T.Gian cập nhật";
-                dataGrid.Columns["material_custom_no"].Visible = false;
             }
             else
             {
@@ -115,7 +124,7 @@ namespace MaterialMES2ERP
 
                 dataGrid.Columns["createDate"].HeaderText = "Ngày tạo đơn";
             }
-            
+
         }
 
         public static DataTable MESOrders(string keyword)
@@ -128,7 +137,7 @@ namespace MaterialMES2ERP
                 StringBuilder sqlGetWOfromMatCode = new StringBuilder();
                 sqlGetWOfromMatCode.Append(@"SELECT DISTINCT work_order_uuid 
  FROM work_order_process 
- WHERE (dispatch_quantity - finish_quantity) > 0 
+ WHERE (dispatch_quantity - COALESCE(finish_quantity, 0)) > 0 
  AND delete_flag = '0'");
                 sqlMesPlanningExcution.getComboBoxData(sqlGetWOfromMatCode.ToString(), ref cbxWOUUID_);
 
@@ -140,9 +149,8 @@ namespace MaterialMES2ERP
                         sqlGetDTGVData.Append(@"SELECT c.uuid AS jobOrdUUID, a.order_uuid AS ID,a.order_no AS orderNo, c.job_no AS jobNo, a.product_no AS prodNo, c.job_quantity AS orderQty, c.actual_finish_qty AS finishQty, c.create_date AS createDate 
  FROM job_order AS c
  JOIN work_order AS a ON a.order_uuid = c.work_order_uuid
- JOIN work_order_process AS b ON a.order_uuid = b.work_order_uuid
- WHERE a.delete_flag = '0' AND b.delete_flag = '0' AND c.delete_flag = '0'
- AND a.order_uuid LIKE '" + cbxWOUUID_.Items[i].ToString() + "' AND a.order_no LIKE '%SEMI%' AND c.job_status < 4");
+ WHERE a.delete_flag = '0'  AND c.delete_flag = '0'
+ AND a.order_uuid LIKE '" + cbxWOUUID_.Items[i].ToString() + "' AND c.operation_uuid = '3Y78FWT1GSW1' AND c.job_status < 4 order by c.create_date desc");
                         sqlMesPlanningExcution.sqlDataAdapterFillDatatable(sqlGetDTGVData.ToString(), ref dt);
                     }
                 }
@@ -162,11 +170,148 @@ namespace MaterialMES2ERP
                     return selectDT;
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
             return dt;
+        }
+
+
+        ///
+        ///Load MES material dosage
+        ///
+        public static void Load2LabelsOrderInfo(Label lb1, Label lb2, Label lb3)
+        {
+            lb1.Text = VariablesSave.OrderNo;
+            lb2.Text = VariablesSave.ProdNo;
+            lb3.Text = VariablesSave.PlanQty.ToString();
+        }
+        public static void LoadMESMatDosage(string woUUID, string jobUUID, DataGridView dataGridView)
+        {
+            sqlMesPlanningExcutionCon sqlMesPlanningExcution = new sqlMesPlanningExcutionCon();
+            sqlMesBaseDataCon sqlMesBaseData = new sqlMesBaseDataCon();
+            StringBuilder getMatIDS = new StringBuilder();
+            ComboBox cbxMatIDs_ = new ComboBox();
+            getMatIDS.Append("SELECT CONCAT(material_uuid , ';', unit_dosage) AS result ");
+            getMatIDS.Append("FROM work_order_material ");
+            getMatIDS.Append("WHERE work_order_uuid = '" + woUUID + "'");
+            sqlMesPlanningExcution.getComboBoxData(getMatIDS.ToString(), ref cbxMatIDs_);
+            VariablesSave.GenerateMatTempDatatable();
+            VariablesSave.ResetTempMat();
+            for (int i = 0; i < cbxMatIDs_.Items.Count; i++)
+            {
+                DataRow dr = VariablesSave.matTempDatatable.NewRow();
+                DataRow dr2 = VariablesSave.tempMat.NewRow();
+                string[] splitResult = cbxMatIDs_.Items[i].ToString().Split(';');
+                string matNo = sqlMesBaseData.sqlExecuteScalarString("Select distinct material_no from material_info where material_uuid = '" + splitResult[0].ToString() + "'");
+                string matWeight = sqlMesPlanningExcution.sqlExecuteScalarString("select actual_material_qty from job_order_material where job_order_uuid = '" + jobUUID + "' and actual_material_no = '" + matNo + "'");
+                string subMatCode = sqlMesPlanningExcution.sqlExecuteScalarString("select substitute_material_code from job_order_material where job_order_uuid = '" + jobUUID + "' and actual_material_no = '" + matNo + "'");
+                string subMatUUID = sqlMesPlanningExcution.sqlExecuteScalarString("select substitute_material_uuid from job_order_material where job_order_uuid = '" + jobUUID + "' and actual_material_no = '" + matNo + "'");
+                if (String.IsNullOrEmpty(matWeight))
+                {
+                    matWeight = "0";
+                }
+                dr["matUUID"] = splitResult[0].ToString();
+                dr2["MatUUID"] = splitResult[0].ToString();
+                dr["matNo"] = matNo;
+                dr2["MatCode"] = matNo;
+                dr["actualMatUUID"] = subMatUUID;
+                dr2["SubMatUUID"] = subMatUUID;
+                dr["actualMatNo"] = subMatCode;
+                dr2["SubMat"] = subMatCode; ;
+                dr["totalDosage"] = VariablesSave.PlanQty * Convert.ToDouble(splitResult[1].ToString().TrimEnd('0'));
+                dr["scaleDosage"] = matWeight;
+                dr2["SumScale"] = Convert.ToDouble(matWeight);
+                dr2["ExpDate"] = sqlMesPlanningExcution.sqlExecuteScalarString("select material_exp_date from job_order_material where job_order_uuid = '" + jobUUID + "' and actual_material_no = '" + matNo + "'");
+                dr2["LOT"] = sqlMesPlanningExcution.sqlExecuteScalarString("select actual_finish_lot_no from job_order_material where job_order_uuid = '" + jobUUID + "' and actual_material_no = '" + matNo + "'"); ;
+                VariablesSave.matTempDatatable.Rows.Add(dr);
+                VariablesSave.tempMat.Rows.Add(dr2);
+            }
+            VariablesSave.matTempDatatable.AcceptChanges();
+            dataGridView.DataSource = VariablesSave.matTempDatatable;
+            if (VariablesSave.matTempDatatable.Rows.Count > 0)
+            {
+                dataGridView.Columns["matUUID"].Visible = false;
+                dataGridView.Columns["matNo"].HeaderText = "Mã liệu";
+                dataGridView.Columns["actualMatUUID"].Visible = false;
+                dataGridView.Columns["actualMatNo"].HeaderText = "Mã liệu thực tế";
+
+                dataGridView.Columns["totalDosage"].HeaderText = "Khối lượng liệu dự kiến";
+                dataGridView.Columns["scaleDosage"].HeaderText = "Khối lượng liệu đang đã làm";
+            }
+        }
+
+        public static void LoadTempMatDosage(string woUUID, string joUUID, DataGridView dataGridView)
+        {
+            VariablesSave.ResetTempMat();
+            sqlMesPlanningExcutionCon sqlMesPlanningExcution = new sqlMesPlanningExcutionCon();
+            sqlMesBaseDataCon sqlMesBaseData = new sqlMesBaseDataCon();
+            sqlSOFTCon sqlSOFT = new sqlSOFTCon();
+            StringBuilder getMatIDS = new StringBuilder();
+            ComboBox cbxMatIDs_ = new ComboBox();
+            getMatIDS.Append("SELECT CONCAT(material_uuid , ';', unit_dosage) AS result ");
+            getMatIDS.Append("FROM work_order_material ");
+            getMatIDS.Append("WHERE work_order_uuid = '" + woUUID + "'");
+            sqlMesPlanningExcution.getComboBoxData(getMatIDS.ToString(), ref cbxMatIDs_);
+            VariablesSave.GenerateMatTempDatatable();
+            string matCustomUUID = sqlSOFT.sqlExecuteScalarString("select distinct material_no_uuid from Scale_OngoingOrder where work_order_uuid = '" + woUUID + "' and job_order_uuid = '" + joUUID + "'");
+            for (int i = 0; i < cbxMatIDs_.Items.Count; i++)
+            { 
+                DataRow dr = VariablesSave.matTempDatatable.NewRow();
+                DataRow dr2 = VariablesSave.tempMat.NewRow();
+                string[] splitResult = cbxMatIDs_.Items[i].ToString().Split(';');
+                string matNo = sqlMesBaseData.sqlExecuteScalarString("Select distinct material_no from material_info where material_uuid = '" + splitResult[0].ToString() + "'");
+                string tempSaveScale = sqlSOFT.sqlExecuteScalarString("select distinct actual_weight from Scale_OngoingMaterialInfo where material_no_uuid = '" + matCustomUUID + "' and (material_uuid = '" + splitResult[0].ToString() + "' or actual_material_uuid = '" + splitResult[0].ToString() + "')");
+                string actualMatUUID = sqlSOFT.sqlExecuteScalarString("select distinct actual_material_uuid from Scale_OngoingMaterialInfo where material_no_uuid = '" + matCustomUUID + "'");
+                if (!String.IsNullOrWhiteSpace(actualMatUUID))
+                {
+                    string actualMatName = sqlMesBaseData.sqlExecuteScalarString("Select distinct material_no from material_info where material_uuid = '" + actualMatUUID + "'");
+                    dr["actualMatUUID"] = actualMatUUID;
+                    dr["actualMatNo"] = actualMatName;
+                    dr2["SubMat"] = actualMatName;
+                    dr2["SubMatUUID"] = actualMatUUID;
+                }
+                else
+                {
+                    dr["actualMatUUID"] = "";
+                    dr["actualMatNo"] = "";
+                    dr2["SubMat"] = "";
+                    dr2["SubMatUUID"] = "";
+                }
+                dr["matUUID"] = splitResult[0].ToString();
+                dr["matNo"] = matNo;
+                dr2["MatCode"] = matNo;
+                dr2["MatUUID"] = splitResult[0].ToString();
+                dr2["ExpDate"] = sqlSOFT.sqlExecuteScalarString("select expDate from Scale_OngoingMaterialInfo where material_no_uuid = '" + matCustomUUID + "'");
+                dr2["LOT"] = sqlSOFT.sqlExecuteScalarString("select LOT from Scale_OngoingMaterialInfo where material_no_uuid = '" + matCustomUUID + "'");
+                dr["totalDosage"] = VariablesSave.PlanQty * Convert.ToDouble(splitResult[1].ToString().TrimEnd('0'));
+                if (!String.IsNullOrWhiteSpace(tempSaveScale))
+                {
+                    dr["scaleDosage"] = Convert.ToDouble(tempSaveScale);
+                    dr2["SumScale"] = Convert.ToDouble(tempSaveScale);
+                    VariablesSave.totalScaleWeight = Convert.ToDouble(tempSaveScale);
+                }
+                else
+                {
+                    dr["scaleDosage"] = "0";
+                    dr2["SumScale"] = "0";
+                }
+                VariablesSave.matTempDatatable.Rows.Add(dr);
+                VariablesSave.tempMat.Rows.Add(dr2);
+            }
+            VariablesSave.matTempDatatable.AcceptChanges();
+            if (VariablesSave.matTempDatatable.Rows.Count > 0)
+            {
+                dataGridView.DataSource = VariablesSave.matTempDatatable;
+                dataGridView.Columns["matUUID"].Visible = false;
+                dataGridView.Columns["matNo"].HeaderText = "Mã liệu";
+                dataGridView.Columns["actualMatUUID"].Visible = false;
+                dataGridView.Columns["actualMatNo"].HeaderText = "Mã liệu thực tế";
+
+                dataGridView.Columns["totalDosage"].HeaderText = "Khối lượng liệu dự kiến";
+                dataGridView.Columns["scaleDosage"].HeaderText = "Khối lượng liệu đang lưu tạm/ đang làm";
+            }
         }
     }
 }

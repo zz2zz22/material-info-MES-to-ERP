@@ -50,6 +50,7 @@ namespace MaterialMES2ERP
                     txtDataIn.Text = "Kết nối với cân thất bại. Vui lòng kiểm tra lại thông tin!";
                     checkIsConnected = false;
                 }
+                serialPort1.Close();
             }
             catch (Exception ex)
             {
@@ -85,10 +86,19 @@ namespace MaterialMES2ERP
                 VariablesSave.DataBits = cbDataBits.Text;
                 VariablesSave.StopBits = cbStopBits.Text;
                 VariablesSave.Parity = cbParityBits.Text;
+                this.Close();
             }
             else
             {
                 MessageBox.Show("Chưa test kết nối hoặc lỗi kết nối với cân");
+            }
+        }
+
+        private void ScaleConnect_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (checkIsConnected == false)
+            {
+                MessageBox.Show("Vui lòng hoàn tất test kết nối cân trước!", "Lưu ý");
             }
         }
     }

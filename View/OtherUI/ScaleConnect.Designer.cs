@@ -248,6 +248,7 @@ namespace MaterialMES2ERP
             this.Name = "ScaleConnect";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "ScaleConnect";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ScaleConnect_FormClosing);
             this.Load += new System.EventHandler(this.ScaleConnect_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();

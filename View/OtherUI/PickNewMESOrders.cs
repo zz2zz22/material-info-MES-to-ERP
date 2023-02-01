@@ -61,6 +61,7 @@ namespace MaterialMES2ERP
 
         private void btnConfirm_Click(object sender, EventArgs e)
         {
+            VariablesSave.ResetTempMat();
             VariablesSave.WorkOrderUUID = WOUUID;
             VariablesSave.JobOrderUUID = JOUUID;
             VariablesSave.OrderNo = lbERPCodeInfo.Text;
@@ -69,5 +70,6 @@ namespace MaterialMES2ERP
             VariablesSave.FinishQty = Convert.ToInt32(lbFinishQtyInfo.Text);
             this.Close();
         }
+
     }
 }

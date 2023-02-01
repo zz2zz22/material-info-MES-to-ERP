@@ -20,19 +20,18 @@ namespace MaterialMES2ERP
             serialPort.Parity = (Parity)Enum.Parse(typeof(Parity), VariablesSave.Parity);
             serialPort.Open();
         }
-        public static void LoadData2DTGVChooseWO(DataGridView dataGridView, DataTable dt)
+        public static void LoadData2DTGVScannedMat(DataGridView dataGridView, DataTable dt)
         {
             dataGridView.DataSource = dt;
-            dataGridView.Columns["ID"].Visible = false;
-            dataGridView.Columns["jobOrdUUID"].Visible = false;
-            dataGridView.Columns["orderNo"].HeaderText = "Mã ERP";
-            dataGridView.Columns["jobNo"].HeaderText = "Mã đơn";
-            dataGridView.Columns["prodNo"].HeaderText = "Mã sản phẩm";
+            dataGridView.Columns["JOMatUUID"].Visible = false;
+            dataGridView.Columns["MatUUID"].Visible = false;
+            dataGridView.Columns["SubMatUUID"].Visible = false;
+            dataGridView.Columns["MatCode"].HeaderText = "Mã liệu";
+            dataGridView.Columns["SubMat"].HeaderText = "Liệu phụ";
+            dataGridView.Columns["ExpDate"].HeaderText = "Hạn liệu";
+            dataGridView.Columns["LOT"].HeaderText = "Số LOT";
+            dataGridView.Columns["SumScale"].HeaderText = "Tổng KL Cân";
 
-            dataGridView.Columns["orderQty"].HeaderText = "Số lượng của đơn";
-            dataGridView.Columns["finishQty"].HeaderText = "Số lượng đã làm";
-
-            dataGridView.Columns["createDate"].HeaderText = "Ngày tạo đơn";
         }
     }
 }

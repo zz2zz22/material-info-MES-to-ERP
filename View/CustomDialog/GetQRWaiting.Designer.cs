@@ -81,7 +81,6 @@ namespace MaterialMES2ERP
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "QRWaiting";
             this.Deactivate += new System.EventHandler(this.GetQRWaiting_Deactivate);
-            this.Load += new System.EventHandler(this.GetQRWaiting_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ptbxQRWait)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
